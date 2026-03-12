@@ -391,15 +391,15 @@ async function initializeApp() {
     if (listType === 'allowlist') currentAllowlist.add(domain);
     else currentDenylist.add(domain);
 
-    const success = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action: "add" });
-    if (success) {
+    const res = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action: "add" });
+    if (res && res.success) {
       domainInput.style.borderColor = listType === 'allowlist' ? "#28a745" : "#dc3545";
       syncLists(true); 
       if (document.getElementById('tab-logs').classList.contains('active')) renderLogs();
     } else {
       if (listType === 'allowlist') currentAllowlist.delete(domain);
       else currentDenylist.delete(domain);
-      alert("Failed to submit domain.");
+      alert(res?.error || "Failed to submit domain.");
     }
   };
 
@@ -411,8 +411,8 @@ async function initializeApp() {
     if (!domain || !activeProfile) return;
     
     currentAllowlist.add(domain); 
-    const success = await browser.runtime.sendMessage({ type: "TEMP_ALLOW", profileId: activeProfile, domain }).catch(() => false);
-    if (success) {
+    const res = await browser.runtime.sendMessage({ type: "TEMP_ALLOW", profileId: activeProfile, domain }).catch(() => ({success: false}));
+    if (res && res.success) {
       domainInput.style.borderColor = "#f39c12";
       syncLists(true); 
     }
@@ -576,8 +576,8 @@ async function handleLogAction(listType, domain, action, btnEl) {
   }
   renderLogs(); 
 
-  const success = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action });
-  if (success) {
+  const res = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action });
+  if (res && res.success) {
     syncLists(true); 
   } else {
     if (listType === 'allowlist') {
@@ -588,7 +588,7 @@ async function handleLogAction(listType, domain, action, btnEl) {
       else currentDenylist.add(domain);
     }
     renderLogs();
-    btnEl.textContent = "Error";
+    btnEl.textContent = "Error"; btnEl.title = res?.error || "API Error";
     setTimeout(() => renderLogs(), 1500); 
   }
 }
@@ -597,27 +597,18 @@ async function findInLists(searchDomain) {
   document.querySelector('.tab-btn[data-tab="lists"]').click();
   const container = document.getElementById("list-items-container");
   container.innerHTML = "<div style='padding:15px; text-align:center; font-size: 0.9em; color: var(--text-muted);'>Searching cache...</div>";
-  
-  const getRoot = (d) => {
-    const p = d.split('.');
-    return p.length > 2 ? p.slice(-2).join('.') : d;
-  };
+  const getRoot = (d) => { const p = d.split('.'); return p.length > 2 ? p.slice(-2).join('.') : d; };
   const rootDomain = getRoot(searchDomain);
-
   await syncLists(); 
-
-  let foundType = null;
-  let foundTarget = null;
-
+  let foundType = null; let foundTarget = null;
   if (currentAllowlist.has(searchDomain)) { foundType = 'allowlist'; foundTarget = searchDomain; }
   else if (currentDenylist.has(searchDomain)) { foundType = 'denylist'; foundTarget = searchDomain; }
   else if (currentAllowlist.has(rootDomain)) { foundType = 'allowlist'; foundTarget = rootDomain; }
   else if (currentDenylist.has(rootDomain)) { foundType = 'denylist'; foundTarget = rootDomain; }
-
   if (foundType) {
     document.getElementById("list-type-select").value = foundType;
     document.getElementById("list-search-input").value = foundTarget;
-    loadManagerList(); 
+    loadManagerList();
   } else {
     document.getElementById("list-search-input").value = searchDomain;
     loadManagerList();
@@ -640,9 +631,9 @@ document.getElementById("list-add-btn").onclick = async () => {
     document.getElementById("list-new-domain").value = "";
     loadManagerList(); 
 
-    const success = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action: "add" });
-    if(success) syncLists(true);
-    else alert("Failed to save domain to API.");
+    const res = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action: "add" });
+    if(res && res.success) syncLists(true);
+    else alert(res?.error || "Failed to save domain to API.");
   }
 };
 
@@ -715,8 +706,8 @@ async function deleteListItem(domain) {
   loadManagerList(); 
 
   const success = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action: "delete" });
-  if (success) syncLists(true);
-  else alert("Failed to delete from API.");
+  if (res && res.success) syncLists(true);
+  else alert(res?.error || "Failed to delete from API.");
 }
 
 const telemetryList = ["windows", "apple", "xiaomi", "sonos", "samsung", "roku", "alexa", "huawei"];
@@ -739,8 +730,8 @@ async function toggleService(category, id, btnEl) {
   const isBlocked = btnEl.classList.contains("btn-deny");
   const action = isBlocked ? "delete" : "add";
   btnEl.textContent = "...";
-  const success = await browser.runtime.sendMessage({ type: "TOGGLE_SERVICE", profileId: activeProfile, category, id, action });
-  if (success) {
+  const res = await browser.runtime.sendMessage({ type: "TOGGLE_SERVICE", profileId: activeProfile, category, id, action });
+  if (res && res.success) {
     if (action === "add") { btnEl.classList.replace("btn-secondary", "btn-deny"); btnEl.textContent = "Blocked"; } 
     else { btnEl.classList.replace("btn-deny", "btn-secondary"); btnEl.textContent = "Allow"; }
   } else {

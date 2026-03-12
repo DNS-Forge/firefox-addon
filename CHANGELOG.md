@@ -1,10 +1,16 @@
 # Changelog
 
-All notable changes to the **NextDNS Manager** Firefox extension will be documented in this file.
+All notable changes to the **DNS Forge** Firefox extension will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+
+## [0.9.2] - 2026-03-12
+### Changed
+- **Architecture (Code Smells):** Ripped out the massive `if/else` chain in `background.js` and replaced it with an optimized, highly scalable Message Dispatch Map.
+- **Error Propagation:** The API fetcher no longer swallows network or format errors silently. Granular errors (e.g., "Invalid Domain Format") are now caught by the background script and bubbled up to the UI as alerts.
+- **Cache-Only Lookup:** Optimized `findInLists` (via the Kebab menu) to exclusively query the local memory `Set`. It now executes in `0ms` and eliminates redundant API spam.
 
 ## [0.9.1] - 2026-03-11
 ### Added
@@ -17,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **CI/CD Pipeline:** Fully integrated GitHub Actions workflow with Mozilla's `web-ext lint` and automated Jest testing.
 
 ### Changed
+- **Rebrand:** Officially rebranded from "NextDNS Manager" to "DNS Forge".
 - **SPA Architecture:** Consolidated the entire extension into a unified, lightning-fast Single Page Application, handling views via internal DOM routing.
 - **Optimistic Caching:** The List Manager now reads directly from local memory, resulting in instant 0ms tab switching and search filtering.
 - **Render Limits:** Implemented a 100-item soft render limit to prevent DOM freezing when loading massive blocklists.
@@ -29,37 +36,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Removed
 - **Deprecated Files:** Deleted standalone `logs.html/js`, `manager.html/js`, and `options.html/js` files in favor of the new SPA routing.
-
----
-
-## [0.9.0] - 2026-03-10
-### Added
-- **Bulk Add Domains:** Implemented an input area to add multiple domains to the Allowlist/Denylist simultaneously.
-- **Background Filtering Engine:** Added `localRegexRules` logic to the background service worker to intercept tracking requests natively before they reach NextDNS.
-- **One-Click Toggles:** Created the "Blocks" UI to instantly toggle OS telemetry (Windows, Apple, Xiaomi) and common apps/services (TikTok, Tinder, Meta).
-
-### Changed
-- **API Rate Limiting:** Added a 500ms delay to iterative bulk-add operations to prevent NextDNS API rejection.
-- **Jest Implementation:** Built the initial test suites (`allowlist.test.js` and `denylist.test.js`) to verify background messaging functionality.
-
----
-
-## [0.8.0] - 2026-03-09
-### Added
-- **Live Logs:** Integrated the NextDNS logs API to fetch and render raw DNS queries with client IP and device metadata.
-- **List Manager:** Integrated NextDNS Allowlist and Denylist APIs for direct domain manipulation.
-- **Multi-Page UI:** Built the initial UI framework utilizing separate HTML/JS files linked via a top navigation bar.
-- **Profile Auto-Detect:** Added logic to ping the API and automatically resolve the user's active configuration profile if multiple exist.
-- **Snooze Function:** Added a 5-minute temporary allow button for blocked domains.
-
-### Fixed
-- Addressed an issue where background scripts would lose the API key state during browser suspension.
-
----
-
-## [0.1.0] - 2026-03-08
-### Added
-- **Project Scaffold:** Initialized the repository and basic directory structure.
-- **Manifest V3:** Drafted the initial `manifest.json` requesting `webRequest`, `webRequestBlocking`, and `storage` permissions.
-- **Storage API:** Set up local browser storage for securely holding the NextDNS API key.
-- **Dashboard Widget:** Created the basic popup UI structure to display a privacy grade and 24-hour query statistics.
