@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    /* --- CSS THEME VARIABLES --- */
+    :root {
+      --bg-main: #1a1a2e;
+      --bg-panel: #0f3460;
+      --border-color: #16213e;
+      --text-main: #ffffff;
+      --text-muted: #aaaaaa;
+      --hover-bg: #23233f;
+    }
+
+    body.light-mode {
+      --bg-main: #f3f4f6;
+      --bg-panel: #ffffff;
+      --border-color: #d1d5db;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --hover-bg: #e5e7eb;
+    }
+
+    html { background: var(--bg-main); transition: background 0.3s; }
+    
+    body { width: 600px; height: 600px; padding: 0; font-family: system-ui, sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; display: flex; flex-direction: column; overflow: hidden; transition: background 0.3s, color 0.3s; }
+    
+    /* Popout Mode */
+    body.popout-mode { 
+      width: 100% !important; 
+      max-width: 450px !important; 
+      height: 100vh !important; 
+      margin: 0 auto !important; 
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    /* Native Sidebar Mode */
+    body.sidebar-mode {
+      width: 100% !important;
+      max-width: none !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    
+    .header-container { display: flex; justify-content: space-between; align-items: center; margin: 10px 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { margin: 0; font-size: 1.1em; }
+    .header-controls { display: flex; gap: 12px; align-items: center; }
+    .header-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2em; padding: 0; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+    .header-btn:hover { color: var(--text-main); transform: scale(1.1); }
+
+    input[type="text"], select, textarea { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; background: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.9em; transition: 0.3s; }
+    textarea { resize: vertical; font-family: monospace; }
+    button { padding: 8px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.9em; }
+    .btn-allow { background-color: #28a745; color: white; }
+    .btn-deny { background-color: #dc3545; color: white; }
+    .btn-secondary { background-color: #4facf7; color: white; }
+    .btn-dark { background-color: #444; color: white; }
+    
+    .tab-bar { display: flex; border-bottom: 2px solid var(--border-color); flex-shrink: 0; background: var(--border-color); transition: 0.3s; }
+    .tab-btn { flex: 1; background: transparent; color: var(--text-muted); border: none; padding: 10px 5px; cursor: pointer; border-radius: 0; font-weight: normal; transition: 0.2s; font-size: 0.9em; }
+    .tab-btn:hover { background: var(--bg-panel); color: var(--text-main); }
+    .tab-btn.active { color: var(--text-main); border-bottom: 3px solid #4facf7; font-weight: bold; background: var(--bg-main); }
+    
+    .tab-content { display: none; flex-direction: column; flex-grow: 1; overflow-y: auto; padding: 15px; }
+    .tab-content.active { display: flex; }
+
+    .dashboard-panel { display: flex; gap: 10px; margin-bottom: 15px; }
+    .panel-box { background: var(--bg-panel); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color); flex: 1; text-align: center; transition: 0.3s; }
+
+    .log-row { padding: 8px 12px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; }
+    .log-row:hover { background: var(--hover-bg); }
+    .domain-copy:hover { text-decoration: underline; cursor: copy; }
+    
+    .tab-log-item:hover { background: var(--hover-bg); }
+
+    .kebab-menu { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 24px; cursor: pointer; color: var(--text-muted); margin-left: 8px; font-size: 1.2em; }
+    .kebab-menu:hover { color: var(--text-main); }
+    .kebab-content { display: none; position: absolute; right: 0; top: 100%; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); z-index: 100; min-width: 120px; overflow: hidden; }
+    .kebab-menu:hover .kebab-content { display: flex; flex-direction: column; }
+    .kebab-content button { background: transparent; border: none; padding: 8px 12px; text-align: left; width: 100%; border-radius: 0; font-size: 0.85em; margin: 0; color: var(--text-main); }
+    .kebab-content button:hover { background: var(--hover-bg); }
+    
+    .logs-control-bar { padding: 10px 15px; background: var(--border-color); display: flex; flex-direction: column; gap: 8px; transition: 0.3s; }
+    .logs-filters { display: flex; gap: 12px; font-size: 0.85em; flex-wrap: wrap; align-items: center; }
+    .logs-filters label { cursor: pointer; display: flex; align-items: center; gap: 4px; color: var(--text-main); }
+    
+    .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9em; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .toggle-card { background: var(--bg-panel); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color); transition: 0.3s; }
+
+    input[type="color"] { -webkit-appearance: none; border: none; width: 28px; height: 28px; padding: 0; border-radius: 4px; cursor: pointer; background: transparent; }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border-color); border-radius: 4px; }
+  </style>
+</head>
+<body>
+  
+  <div class="header-container">
+    <h3>DNS Forge</h3>
+    <div class="header-controls">
+      <button id="theme-toggle-btn" class="header-btn" title="Quick Toggle Light/Dark">🌗</button>
+      <button id="refresh-view-btn" class="header-btn" title="Refresh Active Tab">🔄</button>
+      <button id="pin-ui-btn" class="header-btn" title="Toggle Always on Top" style="display: none;">📌</button>
+      <button id="sidebar-ui-btn" class="header-btn" title="Dock to Sidebar">🗂️</button>
+      <button id="popout-ui-btn" class="header-btn" title="Open in dedicated window">↗️</button>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="dashboard">🏠 Dash</button>
+    <button class="tab-btn" data-tab="logs">📡 Logs</button>
+    <button class="tab-btn" data-tab="lists">📋 Lists</button>
+    <button class="tab-btn" data-tab="toggles">⚡ Blocks</button>
+    <button class="tab-btn" id="tab-btn-labs" data-tab="labs" style="display: none;">🧪 Labs</button>
+    <button class="tab-btn" data-tab="settings">⚙️ Options</button>
+  </div>
+
+  <div id="tab-dashboard" class="tab-content active">
+    <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 10px;" id="profile-status">Profile: Detecting...</div>
+    
+    <label for="domain-input" style="font-size: 0.9em; margin-bottom: 4px; display: block;">Target Domain:</label>
+    <input type="text" id="domain-input" placeholder="Loading...">
+    
+    <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+      <button id="allow-btn" class="btn-allow">Allow</button>
+      <button id="deny-btn" class="btn-deny">Deny</button>
+    </div>
+    <button id="snooze-btn" class="btn-allow" style="background-color: #f39c12;">⏳ Temp Allow (5m)</button>
+    
+    <div class="dashboard-panel" style="margin-top: 15px;">
+      <div class="panel-box">
+        <div style="font-size: 0.7em; color: var(--text-muted); text-transform: uppercase;">Page Grade</div>
+        <div id="privacy-score" style="font-size: 2em; font-weight: bold; margin-top: 2px;">-</div>
+      </div>
+      <div class="panel-box">
+        <div style="font-size: 0.7em; color: var(--text-muted); text-transform: uppercase;">24h Queries</div>
+        <div id="stat-total" style="font-size: 1.1em; margin-top: 5px; font-weight: bold;">...</div>
+        <div style="font-size: 0.8em; color: #dc3545;">Block: <span id="stat-blocked">...</span></div>
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 5px;">
+      <h4 style="margin: 0; font-size: 0.85em; color: var(--text-muted);">Tab Requests:</h4>
+      <button id="toggle-tab-tracking-btn" class="btn-secondary" style="width: auto; padding: 2px 8px; font-size: 0.75em;" title="Pause live tab tracking for research">⏸️ Live</button>
+    </div>
+    <div id="tab-log" style="flex-grow: 1; overflow-y: auto; font-size: 0.8em; background: var(--bg-panel); border-radius: 4px; border: 1px solid var(--border-color);"></div>
+  </div>
+
+  <div id="tab-logs" class="tab-content" style="padding: 0;">
+    <div class="logs-control-bar">
+      <div style="display: flex; gap: 5px; align-items: center;">
+        <input type="text" id="log-search" placeholder="Filter domains or devices..." style="margin-bottom: 0; flex-grow: 1; height: 34px;">
+        <button id="auto-refresh-btn" class="btn-dark" style="width: auto; padding: 0 12px; height: 34px;" title="Toggle Auto-Refresh">⏸️ Auto</button>
+      </div>
+      <div class="logs-filters" id="log-filters">
+        <span style="color: var(--text-muted);">Show:</span>
+        <label><input type="checkbox" value="status:allowed" checked> Allowed</label>
+        <label><input type="checkbox" value="status:blocked" checked> Blocked</label>
+        <label><input type="checkbox" value="reason:allowlist" checked> Allowlist</label>
+        <label><input type="checkbox" value="reason:denylist" checked> Denylist</label>
+      </div>
+    </div>
+    <div id="logs-container" style="flex-grow: 1; overflow-y: auto;">
+      <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9em;">Click refresh to load logs...</div>
+    </div>
+  </div>
+
+  <div id="tab-lists" class="tab-content">
+    <select id="list-type-select">
+      <option value="allowlist">🟢 Allowlist</option>
+      <option value="denylist">🔴 Denylist</option>
+    </select>
+    
+    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+      <input type="text" id="list-new-domain" placeholder="example.com" style="margin-bottom: 0;">
+      <button id="list-add-btn" class="btn-secondary" style="width: auto;">Add</button>
+      <button id="list-bulk-toggle-btn" class="btn-dark" style="width: auto;" title="Bulk Add Domains">📥</button>
+    </div>
+
+    <div id="list-bulk-container" style="display: none; flex-direction: column; background: var(--bg-panel); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color); margin-bottom: 10px;">
+      <label style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px; display: block;">Add multiple domains (one per line):</label>
+      <textarea id="list-bulk-domains" rows="5" placeholder="example.com&#10;test.com" style="margin-bottom: 8px;"></textarea>
+      <div style="display: flex; gap: 5px;">
+        <button id="list-bulk-submit-btn" class="btn-allow">Submit Bulk Add</button>
+        <button id="list-bulk-cancel-btn" class="btn-deny" style="width: auto;">Cancel</button>
+      </div>
+    </div>
+    
+    <input type="text" id="list-search-input" placeholder="🔍 Search entries..." style="margin-bottom: 10px; background: var(--border-color);">
+
+    <div id="list-items-container" style="flex-grow: 1; overflow-y: auto; background: var(--bg-panel); border-radius: 4px; border: 1px solid var(--border-color);"></div>
+  </div>
+
+  <div id="tab-toggles" class="tab-content">
+    <p style="color: var(--text-muted); font-size: 0.85em; margin-top: 0;">Instantly kill network access to telemetry servers and applications.</p>
+    <div class="grid" style="flex-grow: 1; overflow-y: auto;">
+      <div class="toggle-card">
+        <h4 style="margin-top: 0; border-bottom: 1px solid #4facf7; padding-bottom: 5px; font-size: 0.95em;">OS Telemetry</h4>
+        <div id="telemetry-list"></div>
+      </div>
+      <div class="toggle-card">
+        <h4 style="margin-top: 0; border-bottom: 1px solid #f39c12; padding-bottom: 5px; font-size: 0.95em;">Apps & Services</h4>
+        <div id="services-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-labs" class="tab-content">
+    <h4 style="margin: 0 0 10px 0; font-size: 1em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">🧪 Experimental Features</h4>
+    
+    <div style="background: var(--bg-panel); padding: 15px; border-radius: 4px; border: 1px solid var(--border-color);">
+      <label style="display: block; font-weight: bold; font-size: 0.9em; color: #dc3545;">Local Regex Firewall</label>
+      <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 2px; margin-bottom: 10px;">Intercepts domains natively in the browser before they hit DNS (One regex per line).</p>
+      <textarea id="setting-regex-rules" rows="6" placeholder=".*\.tiktok\.com$&#10;.*analytics.*" style="margin-bottom: 10px; font-family: monospace; font-size: 0.85em; background: var(--bg-main);"></textarea>
+      <button id="save-labs-btn" class="btn-allow">💾 Save Labs Settings</button>
+    </div>
+  </div>
+
+  <div id="tab-settings" class="tab-content">
+    <div style="background: var(--bg-panel); padding: 15px; border-radius: 4px; border: 1px solid var(--border-color);">
+      <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em;">API Key</label>
+      <input type="text" id="setting-api-key" placeholder="Enter NextDNS API Key">
+      
+      <label style="display: block; margin-top: 15px; margin-bottom: 2px; font-weight: bold; font-size: 0.9em;">Configuration Profile Override</label>
+      <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 0;">Bypasses browser DoH fingerprinting.</p>
+      
+      <div style="display: flex; gap: 5px;">
+        <select id="setting-profile-select" style="margin-bottom: 0;">
+          <option value="">Auto-Detect (Default)</option>
+        </select>
+        <button id="setting-fetch-profiles" class="btn-secondary" style="width: auto;" title="Fetch Profiles">🔄</button>
+      </div>
+
+      <label style="display: flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 0.9em; cursor: pointer;">
+        <input type="checkbox" id="setting-auto-refresh" style="width: auto; margin: 0;">
+        Enable Auto-Refresh on Logs tab by default
+      </label>
+
+      <label style="display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.9em; cursor: pointer;">
+        <input type="checkbox" id="setting-enable-labs" style="width: auto; margin: 0;">
+        Enable Experimental Labs Tab
+      </label>
+
+      <label style="display: block; margin-top: 15px; margin-bottom: 2px; font-weight: bold; font-size: 0.9em;">Toolbar Icon Action</label>
+      <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 0;">What happens when you click the browser extension icon.</p>
+      <select id="setting-icon-action" style="margin-bottom: 0;">
+        <option value="popup">Open Dropdown Popup (Default)</option>
+        <option value="sidebar">Open Native Sidebar</option>
+      </select>
+
+      <button id="save-settings-btn" class="btn-allow" style="margin-top: 20px;">💾 Save Options</button>
+      
+      <div style="margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+        <h4 style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-muted);">Theme Manager</h4>
+        
+        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+          <select id="theme-selector" style="margin-bottom: 0;"></select>
+          <button id="delete-theme-btn" class="btn-deny" style="width: auto; display: none;" title="Delete Theme">🗑️</button>
+        </div>
+
+        <div class="grid" style="gap: 10px; margin-bottom: 12px;">
+          <label style="display:flex; justify-content:space-between; align-items:center; font-size: 0.85em; cursor: pointer;">Background <input type="color" id="color-bg-main"></label>
+          <label style="display:flex; justify-content:space-between; align-items:center; font-size: 0.85em; cursor: pointer;">Panels <input type="color" id="color-bg-panel"></label>
+          <label style="display:flex; justify-content:space-between; align-items:center; font-size: 0.85em; cursor: pointer;">Borders <input type="color" id="color-border-color"></label>
+          <label style="display:flex; justify-content:space-between; align-items:center; font-size: 0.85em; cursor: pointer;">Hover Rows <input type="color" id="color-hover-bg"></label>
+          <label style="display:flex; justify-content:space-between; align-items:center; font-size: 0.85em; cursor: pointer;">Main Text <input type="color" id="color-text-main"></label>
+          <label style="display:flex; justify-content:space-between; align-items:center; font-size: 0.85em; cursor: pointer;">Muted Text <input type="color" id="color-text-muted"></label>
+        </div>
+        
+        <div style="display: flex; gap: 5px;">
+          <input type="text" id="theme-name-input" placeholder="Name new theme..." style="margin-bottom: 0;">
+          <button id="save-theme-btn" class="btn-allow" style="background-color: #4facf7; width: auto; white-space: nowrap;">💾 Save</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+        <h4 style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-muted);">Data Management</h4>
+        <button id="download-logs-btn" class="btn-secondary" style="margin-bottom: 8px;">📥 Download Logs (CSV)</button>
+        <button id="wipe-logs-btn" class="btn-deny">🗑️ Wipe All Logs</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
