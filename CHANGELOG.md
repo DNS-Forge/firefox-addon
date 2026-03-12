@@ -12,6 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Error Propagation:** The API fetcher no longer swallows network or format errors silently. Granular errors (e.g., "Invalid Domain Format") are now caught by the background script and bubbled up to the UI as alerts.
 - **Cache-Only Lookup:** Optimized `findInLists` (via the Kebab menu) to exclusively query the local memory `Set`. It now executes in `0ms` and eliminates redundant API spam.
 
+## [0.9.2] - 2026-03-12
+### Changed
+- **Architecture (Code Smells):** Ripped out the massive `if/else` chain in `background.js` and replaced it with an optimized, highly scalable Message Dispatch Map.
+- **Error Propagation:** The API fetcher no longer swallows network or format errors silently. Granular errors (e.g., "Invalid Domain Format") are now caught by the background script and bubbled up to the UI as alerts.
+- **Cache-Only Lookup:** Optimized `findInLists` (via the Kebab menu) to exclusively query the local memory `Set`. It now executes in `0ms` and eliminates redundant API spam.
+
 ## [0.9.1] - 2026-03-11
 ### Added
 - **Native Sidebar Support:** The extension can now be docked natively to the Firefox sidebar.

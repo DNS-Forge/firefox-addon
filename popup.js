@@ -588,7 +588,7 @@ async function handleLogAction(listType, domain, action, btnEl) {
       else currentDenylist.add(domain);
     }
     renderLogs();
-    btnEl.textContent = "Error"; btnEl.title = res?.error || "API Error";
+    btnEl.textContent = "Error"; btnEl.title = res?.error || "API Error"; btnEl.title = res?.error || "API Error";
     setTimeout(() => renderLogs(), 1500); 
   }
 }
