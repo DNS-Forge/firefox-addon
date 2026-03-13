@@ -1,12 +1,5 @@
-# Node dependencies
 node_modules/
 dist/
-.env
-
-# Test output
-coverage/
-*.log
-
-# Firefox extension artifacts
 *.xpi
 *.zip
+.env

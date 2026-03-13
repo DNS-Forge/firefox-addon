@@ -9,44 +9,24 @@
       "strict_min_version": "109.0"
     }
   },
-  "permissions": [
-    "storage",
-    "activeTab",
-    "tabs",
-    "alarms",
-    "webRequest",
-    "webRequestBlocking"
-  ],
-  "host_permissions": [
-    "https://api.nextdns.io/*",
-    "https://test.nextdns.io/*",
-    "<all_urls>"
-  ],
-  "background": {
-    "scripts": ["background.js"]
+  "permissions": ["storage", "activeTab", "tabs", "alarms", "webRequest", "webRequestBlocking"],
+  "host_permissions": ["https://api.nextdns.io/*", "https://test.nextdns.io/*", "<all_urls>"],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   },
+  "background": { "scripts": ["background.js"] },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon-16.png", "48": "icons/icon-48.png" }
   },
   "sidebar_action": {
     "default_title": "DNS Forge",
-    "default_panel": "popup.html?mode=sidebar"
+    "default_panel": "popup.html?mode=sidebar",
+    "default_icon": "icons/icon-16.png"
   },
-  "options_ui": {
-    "page": "popup.html",
-    "open_in_tab": true
-  },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';"
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://my.nextdns.io/*"
-      ],
-      "js": [
-        "content.js"
-      ]
-    }
-  ]
+  "options_ui": { "page": "popup.html", "open_in_tab": true },
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'self';" },
+  "content_scripts": [{ "matches": ["https://my.nextdns.io/*"], "js": ["content.js"] }]
 }

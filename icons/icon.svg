@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <radialGradient id="forgeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff3b30" stop-opacity="1" />
+      <stop offset="40%" stop-color="#ff9500" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#ff3b30" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="24" fill="#12121a" />
+  <rect width="124" height="124" x="2" y="2" rx="22" fill="none" stroke="#2a2a35" stroke-width="4" />
+
+  <path d="M 32 98 L 96 98 L 86 82 L 42 82 Z" fill="#2d2d3a" />
+  
+  <path d="M 46 82 L 82 82 L 82 58 L 46 58 Z" fill="#3f3f52" />
+  <line x1="46" y1="70" x2="82" y2="70" stroke="#2d2d3a" stroke-width="2" />
+  
+  <path d="M 16 58 L 112 58 L 112 44 L 36 44 Q 16 44 16 58 Z" fill="#62627a" />
+  <path d="M 16 58 L 112 58 L 112 52 L 30 52 Q 16 52 16 58 Z" fill="#4d4d63" />
+
+  <ellipse cx="64" cy="44" rx="35" ry="8" fill="url(#forgeGlow)" />
+  <ellipse cx="64" cy="44" rx="15" ry="3" fill="#ffffff" opacity="0.8" />
+
+  <rect x="52" y="30" width="6" height="6" rx="1" fill="#ff3b30" />
+  <rect x="70" y="24" width="4" height="4" rx="0.5" fill="#ff9500" />
+  <rect x="62" y="16" width="8" height="8" rx="1" fill="#ff3b30" />
+  <rect x="46" y="20" width="4" height="4" rx="0.5" fill="#ff9500" />
+  <rect x="80" y="28" width="5" height="5" rx="1" fill="#ff3b30" />
+
+  <rect x="62" y="60" width="4" height="18" fill="#00f0ff" rx="2" />
+  <rect x="52" y="64" width="3" height="12" fill="#00f0ff" rx="1.5" />
+  <rect x="73" y="68" width="3" height="14" fill="#00f0ff" rx="1.5" />
+  
+  <circle cx="64" cy="76" r="2" fill="#00f0ff" />
+  <circle cx="53.5" cy="74" r="1.5" fill="#00f0ff" />
+</svg>

@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "DNS Forge",
+  "version": "0.9.2",
+  "description": "Advanced control over NextDNS configurations with hybrid local filtering and native dashboard integration.",
+  "icons": {
+    "16": "icons/icon.svg",
+    "48": "icons/icon.svg",
+    "128": "icons/icon.svg"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{56fda99b-4dd4-4a4a-a413-00ff1c2cffd8}",
+      "strict_min_version": "109.0"
+    }
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "alarms",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+  "host_permissions": [
+    "https://api.nextdns.io/*",
+    "https://test.nextdns.io/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "sidebar_action": {
+    "default_title": "DNS Forge",
+    "default_panel": "popup.html?mode=sidebar"
+  },
+  "options_ui": {
+    "page": "popup.html",
+    "open_in_tab": true
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://my.nextdns.io/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ]
+}
