@@ -1,37 +1,191 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <defs>
-    <radialGradient id="forgeGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ff3b30" stop-opacity="1" />
-      <stop offset="40%" stop-color="#ff9500" stop-opacity="0.8" />
-      <stop offset="100%" stop-color="#ff3b30" stop-opacity="0" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 128 128"
+   width="128"
+   height="128"
+   version="1.1"
+   id="svg16"
+   sodipodi:docname="icon.svg"
+   inkscape:export-filename="icon-16.png"
+   inkscape:export-xdpi="12"
+   inkscape:export-ydpi="12"
+   inkscape:version="1.4.3rc (9500139e98, 2025-12-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview16"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     inkscape:export-bgcolor="#e3e3e300"
+     inkscape:zoom="5.8671875"
+     inkscape:cx="64"
+     inkscape:cy="64"
+     inkscape:window-width="1860"
+     inkscape:window-height="1046"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg16" />
+  <defs
+     id="defs3">
+    <radialGradient
+       id="forgeGlow"
+       cx="50%"
+       cy="50%"
+       r="50%">
+      <stop
+         offset="0%"
+         stop-color="#ff3b30"
+         stop-opacity="1"
+         id="stop1" />
+      <stop
+         offset="40%"
+         stop-color="#ff9500"
+         stop-opacity="0.8"
+         id="stop2" />
+      <stop
+         offset="100%"
+         stop-color="#ff3b30"
+         stop-opacity="0"
+         id="stop3" />
     </radialGradient>
   </defs>
-
-  <rect width="128" height="128" rx="24" fill="#12121a" />
-  <rect width="124" height="124" x="2" y="2" rx="22" fill="none" stroke="#2a2a35" stroke-width="4" />
-
-  <path d="M 32 98 L 96 98 L 86 82 L 42 82 Z" fill="#2d2d3a" />
-  
-  <path d="M 46 82 L 82 82 L 82 58 L 46 58 Z" fill="#3f3f52" />
-  <line x1="46" y1="70" x2="82" y2="70" stroke="#2d2d3a" stroke-width="2" />
-  
-  <path d="M 16 58 L 112 58 L 112 44 L 36 44 Q 16 44 16 58 Z" fill="#62627a" />
-  <path d="M 16 58 L 112 58 L 112 52 L 30 52 Q 16 52 16 58 Z" fill="#4d4d63" />
-
-  <ellipse cx="64" cy="44" rx="35" ry="8" fill="url(#forgeGlow)" />
-  <ellipse cx="64" cy="44" rx="15" ry="3" fill="#ffffff" opacity="0.8" />
-
-  <rect x="52" y="30" width="6" height="6" rx="1" fill="#ff3b30" />
-  <rect x="70" y="24" width="4" height="4" rx="0.5" fill="#ff9500" />
-  <rect x="62" y="16" width="8" height="8" rx="1" fill="#ff3b30" />
-  <rect x="46" y="20" width="4" height="4" rx="0.5" fill="#ff9500" />
-  <rect x="80" y="28" width="5" height="5" rx="1" fill="#ff3b30" />
-
-  <rect x="62" y="60" width="4" height="18" fill="#00f0ff" rx="2" />
-  <rect x="52" y="64" width="3" height="12" fill="#00f0ff" rx="1.5" />
-  <rect x="73" y="68" width="3" height="14" fill="#00f0ff" rx="1.5" />
-  
-  <circle cx="64" cy="76" r="2" fill="#00f0ff" />
-  <circle cx="53.5" cy="74" r="1.5" fill="#00f0ff" />
+  <rect
+     width="128"
+     height="128"
+     rx="24"
+     fill="#12121a"
+     id="rect3" />
+  <rect
+     width="124"
+     height="124"
+     x="2"
+     y="2"
+     rx="22"
+     fill="none"
+     stroke="#2a2a35"
+     stroke-width="4"
+     id="rect4" />
+  <path
+     d="M 32 98 L 96 98 L 86 82 L 42 82 Z"
+     fill="#2d2d3a"
+     id="path4" />
+  <path
+     d="M 46 82 L 82 82 L 82 58 L 46 58 Z"
+     fill="#3f3f52"
+     id="path5" />
+  <line
+     x1="46"
+     y1="70"
+     x2="82"
+     y2="70"
+     stroke="#2d2d3a"
+     stroke-width="2"
+     id="line5" />
+  <path
+     d="M 16 58 L 112 58 L 112 44 L 36 44 Q 16 44 16 58 Z"
+     fill="#62627a"
+     id="path6" />
+  <path
+     d="M 16 58 L 112 58 L 112 52 L 30 52 Q 16 52 16 58 Z"
+     fill="#4d4d63"
+     id="path7" />
+  <ellipse
+     cx="64"
+     cy="44"
+     rx="35"
+     ry="8"
+     fill="url(#forgeGlow)"
+     id="ellipse7" />
+  <ellipse
+     cx="64"
+     cy="44"
+     rx="15"
+     ry="3"
+     fill="#ffffff"
+     opacity="0.8"
+     id="ellipse8" />
+  <rect
+     x="52"
+     y="30"
+     width="6"
+     height="6"
+     rx="1"
+     fill="#ff3b30"
+     id="rect8" />
+  <rect
+     x="70"
+     y="24"
+     width="4"
+     height="4"
+     rx="0.5"
+     fill="#ff9500"
+     id="rect9" />
+  <rect
+     x="62"
+     y="16"
+     width="8"
+     height="8"
+     rx="1"
+     fill="#ff3b30"
+     id="rect10" />
+  <rect
+     x="46"
+     y="20"
+     width="4"
+     height="4"
+     rx="0.5"
+     fill="#ff9500"
+     id="rect11" />
+  <rect
+     x="80"
+     y="28"
+     width="5"
+     height="5"
+     rx="1"
+     fill="#ff3b30"
+     id="rect12" />
+  <rect
+     x="62"
+     y="60"
+     width="4"
+     height="18"
+     fill="#00f0ff"
+     rx="2"
+     id="rect13" />
+  <rect
+     x="52"
+     y="64"
+     width="3"
+     height="12"
+     fill="#00f0ff"
+     rx="1.5"
+     id="rect14" />
+  <rect
+     x="73"
+     y="68"
+     width="3"
+     height="14"
+     fill="#00f0ff"
+     rx="1.5"
+     id="rect15" />
+  <circle
+     cx="64"
+     cy="76"
+     r="2"
+     fill="#00f0ff"
+     id="circle15" />
+  <circle
+     cx="53.5"
+     cy="74"
+     r="1.5"
+     fill="#00f0ff"
+     id="circle16" />
 </svg>

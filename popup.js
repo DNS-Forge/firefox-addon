@@ -34,7 +34,6 @@ function escapeHTML(str) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  
   const popoutBtn = document.getElementById('popout-ui-btn');
   const pinBtn = document.getElementById('pin-ui-btn');
   const sidebarBtn = document.getElementById('sidebar-ui-btn');
@@ -79,7 +78,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     syncLists(true); 
     loadManagerList(); 
   });
-
 
   // --- Live Tab Tracking & Freeze Logic ---
   tabSyncBtn.addEventListener('click', () => {
@@ -468,18 +466,26 @@ const getMatch = (domain, listSet) => {
   return null;
 };
 
+// PERFORMANCE: Optimized batch rendering with DocumentFragment
 function renderLogs() {
   const container = document.getElementById("logs-container");
-  if (cachedLogs.length === 0) return container.innerHTML = "<div style='text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9em;'>No logs found.</div>";
+  if (cachedLogs.length === 0) {
+    container.innerHTML = "<div style='text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9em;'>No logs found.</div>";
+    return;
+  }
 
   const textFilter = document.getElementById("log-search").value.toLowerCase();
   const checkedFilters = Array.from(document.querySelectorAll('#log-filters input:checked')).map(cb => cb.value);
 
-  const html = cachedLogs.filter(log => {
+  const fragment = document.createDocumentFragment();
+  let matchCount = 0;
+
+  cachedLogs.forEach(log => {
     const reqDomain = log.domain || log.name || log.qname || log.url || '';
     const deviceName = log.device?.name || log.device?.model || log.device?.localIp || log.device?.id || log.clientIp || '';
     const searchable = `${reqDomain} ${deviceName} ${log.clientIp || ''}`.toLowerCase();
-    if (textFilter && !searchable.includes(textFilter)) return false;
+    
+    if (textFilter && !searchable.includes(textFilter)) return;
 
     const isLiveAllowlisted = getMatch(reqDomain, currentAllowlist) !== null;
     const isLiveDenylisted = getMatch(reqDomain, currentDenylist) !== null;
@@ -493,43 +499,40 @@ function renderLogs() {
     if (isLiveAllowlisted && checkedFilters.includes('reason:allowlist')) show = true;
     if (isLiveDenylisted && checkedFilters.includes('reason:denylist')) show = true;
     
-    return show;
-  }).map(log => {
-    const reqDomain = log.domain || log.name || log.qname || log.url || 'Unknown Target';
+    if (!show) return;
+
+    matchCount++;
+    const row = document.createElement('div');
+    row.className = 'log-row';
+    
     const allowedEntry = getMatch(reqDomain, currentAllowlist);
     const blockedEntry = getMatch(reqDomain, currentDenylist);
-    
-    const isLiveAllowlisted = allowedEntry !== null;
-    const isLiveDenylisted = blockedEntry !== null;
-
     let statusDisplay = log.status === 'blocked' ? 'BLOCKED' : 'ALLOWED';
-    if (isLiveDenylisted) statusDisplay = 'DENYLIST';
-    if (isLiveAllowlisted) statusDisplay = 'ALLOWLIST';
+    if (blockedEntry !== null) statusDisplay = 'DENYLIST';
+    if (allowedEntry !== null) statusDisplay = 'ALLOWLIST';
 
     const color = (statusDisplay === 'BLOCKED' || statusDisplay === 'DENYLIST') ? '#dc3545' : '#28a745';
-    const deviceName = log.device?.name || log.device?.model || log.device?.localIp || log.device?.id || log.clientIp || 'Unnamed';
-    
+    row.style.color = color;
+
     let timeString = '--:--:--';
     if (log.timestamp) {
        try { timeString = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); } catch(e){}
     }
-    
+
     const protocol = log.protocol || '';
     const client = log.client || '';
     const os = log.os || '';
-    const metaArray = [protocol, client, os].filter(Boolean);
-    const metaString = metaArray.length > 0 ? metaArray.join(', ') : 'DNS';
+    const metaString = [protocol, client, os].filter(Boolean).join(', ') || 'DNS';
+    
+    const allowBtnHTML = allowedEntry !== null 
+      ? `<button style="color: #dc3545;" data-log-action="delete" data-list="allowlist" data-domain="${escapeHTML(allowedEntry)}">Remove Allow (${escapeHTML(allowedEntry)})</button>`
+      : `<button style="color: #28a745;" data-log-action="add" data-list="allowlist" data-domain="${escapeHTML(reqDomain)}">Allow</button>`;
 
-    const reasonName = log.reasons?.map(r => r?.name || r?.id || String(r)).join(', ') || '';
-    const hoverAttr = reasonName && !isLiveAllowlisted && !isLiveDenylisted 
-      ? `title="Matched: ${escapeHTML(reasonName)}" style="cursor: help; border-bottom: 1px dotted ${color}; padding-bottom: 1px;"` 
-      : '';
+    const denyBtnHTML = blockedEntry !== null
+      ? `<button style="color: #4facf7;" data-log-action="delete" data-list="denylist" data-domain="${escapeHTML(blockedEntry)}">Remove Block (${escapeHTML(blockedEntry)})</button>`
+      : `<button style="color: #dc3545;" data-log-action="add" data-list="denylist" data-domain="${escapeHTML(reqDomain)}">Block</button>`;
 
-    const allowText = allowedEntry === reqDomain ? "Remove Allow" : `Remove Allow (${escapeHTML(allowedEntry)})`;
-    const blockText = blockedEntry === reqDomain ? "Remove Block" : `Remove Block (${escapeHTML(blockedEntry)})`;
-
-    return `
-      <div class="log-row" style="color: ${color};">
+    row.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; width: 100%;">
           <div style="font-size: 0.75em; color: var(--text-muted); display: flex; gap: 10px; flex-wrap: wrap;">
             <span>🕒 ${timeString}</span>
@@ -537,19 +540,13 @@ function renderLogs() {
             <span>⚙️ ${escapeHTML(metaString)}</span>
           </div>
           <div style="display: flex; align-items: center; white-space: nowrap; margin-left: auto; padding-left: 10px;">
-            <span style="font-size: 0.8em; font-weight: bold; text-transform: uppercase;" ${hoverAttr}>${statusDisplay}</span>
+            <span style="font-size: 0.8em; font-weight: bold; text-transform: uppercase;">${statusDisplay}</span>
             <div class="kebab-menu" title="Actions">
               &#8942;
               <div class="kebab-content">
                 <button style="color: var(--text-main);" data-find="${escapeHTML(reqDomain)}">🔍 Find Entry</button>
-                ${isLiveAllowlisted 
-                  ? `<button style="color: #dc3545;" data-log-action="delete" data-list="allowlist" data-domain="${escapeHTML(allowedEntry)}">${allowText}</button>`
-                  : `<button style="color: #28a745;" data-log-action="add" data-list="allowlist" data-domain="${escapeHTML(reqDomain)}">Allow</button>`
-                }
-                ${isLiveDenylisted
-                  ? `<button style="color: #4facf7;" data-log-action="delete" data-list="denylist" data-domain="${escapeHTML(blockedEntry)}">${blockText}</button>`
-                  : `<button style="color: #dc3545;" data-log-action="add" data-list="denylist" data-domain="${escapeHTML(reqDomain)}">Block</button>`
-                }
+                ${allowBtnHTML}
+                ${denyBtnHTML}
               </div>
             </div>
           </div>
@@ -557,11 +554,16 @@ function renderLogs() {
         <div class="domain-copy" data-copy="${escapeHTML(reqDomain)}" title="Copy to clipboard" style="font-weight: bold; font-size: 0.95em; word-break: break-all; margin-top: 2px;">
           ${escapeHTML(reqDomain)}
         </div>
-      </div>
     `;
-  }).join('');
+    fragment.appendChild(row);
+  });
 
-  container.innerHTML = html || "<div style='text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9em;'>No logs match current filters.</div>";
+  container.innerHTML = "";
+  if (matchCount === 0) {
+    container.innerHTML = "<div style='text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9em;'>No logs match current filters.</div>";
+  } else {
+    container.appendChild(fragment);
+  }
 }
 
 async function handleLogAction(listType, domain, action, btnEl) {
@@ -588,7 +590,7 @@ async function handleLogAction(listType, domain, action, btnEl) {
       else currentDenylist.add(domain);
     }
     renderLogs();
-    btnEl.textContent = "Error"; btnEl.title = res?.error || "API Error"; btnEl.title = res?.error || "API Error";
+    btnEl.textContent = "Error";
     setTimeout(() => renderLogs(), 1500); 
   }
 }
@@ -680,7 +682,6 @@ function renderManagerList() {
     return;
   }
 
-  // PERFORMANCE: Soft Render Cap
   const RENDER_LIMIT = 100;
   const itemsToRender = filtered.slice(0, RENDER_LIMIT);
 
@@ -698,6 +699,7 @@ function renderManagerList() {
   container.innerHTML = html;
 }
 
+// CRIT FIX: Fixed res.success reference
 async function deleteListItem(domain) {
   const listType = document.getElementById("list-type-select").value;
   
@@ -705,9 +707,23 @@ async function deleteListItem(domain) {
   else currentDenylist.delete(domain);
   loadManagerList(); 
 
-  const res = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action: "delete" });
-  if (res && res.success) syncLists(true);
-  else alert(res?.error || "Failed to delete from API.");
+  const res = await browser.runtime.sendMessage({ 
+    type: "MANAGE_DOMAIN", 
+    profileId: activeProfile, 
+    listType, 
+    domain, 
+    action: "delete" 
+  });
+
+  if (res && res.success) {
+    syncLists(true);
+  } else {
+    // Revert UI on API failure
+    if (listType === 'allowlist') currentAllowlist.add(domain);
+    else currentDenylist.add(domain);
+    loadManagerList();
+    alert(res?.error || "Failed to delete from API.");
+  }
 }
 
 const telemetryList = ["windows", "apple", "xiaomi", "sonos", "samsung", "roku", "alexa", "huawei"];
@@ -794,12 +810,30 @@ document.getElementById("save-settings-btn").onclick = async () => {
   initializeApp();
 };
 
-// Labs Tab Save
+// Labs Tab Save with Regex Validation
 document.getElementById("save-labs-btn").onclick = async () => {
-  const regexRules = document.getElementById("setting-regex-rules").value.trim();
-  await browser.storage.local.set({ regexBlocklist: regexRules });
-  
+  const regexRulesRaw = document.getElementById("setting-regex-rules").value.trim();
+  const rulesArray = regexRulesRaw.split('\n').filter(r => r.trim() !== '');
   const btn = document.getElementById("save-labs-btn");
+
+  // --- Regex Validation Logic ---
+  for (const rule of rulesArray) {
+    try {
+      new RegExp(rule);
+    } catch (e) {
+      alert(`Invalid Regex Pattern detected: "${rule}"\n\nError: ${e.message}\n\nPlease fix this line before saving.`);
+      btn.textContent = "❌ Validation Failed";
+      btn.classList.replace("btn-allow", "btn-deny");
+      setTimeout(() => {
+        btn.textContent = "💾 Save Labs Settings";
+        btn.classList.replace("btn-deny", "btn-allow");
+      }, 3000);
+      return; 
+    }
+  }
+
+  await browser.storage.local.set({ regexBlocklist: regexRulesRaw });
+  
   btn.textContent = "✅ Saved Labs!";
   setTimeout(() => { btn.textContent = "💾 Save Labs Settings"; }, 2000);
 };
