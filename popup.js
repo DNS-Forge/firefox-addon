@@ -705,7 +705,7 @@ async function deleteListItem(domain) {
   else currentDenylist.delete(domain);
   loadManagerList(); 
 
-  const success = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action: "delete" });
+  const res = await browser.runtime.sendMessage({ type: "MANAGE_DOMAIN", profileId: activeProfile, listType, domain, action: "delete" });
   if (res && res.success) syncLists(true);
   else alert(res?.error || "Failed to delete from API.");
 }
