@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+# Changelog
+
+## [0.9.4] - 2026-03-14
+### Added
+- **API Key Auto-Extraction:** The extension now quietly extracts your API key when you visit the NextDNS account page, completely eliminating manual setup configuration.
+- **Accordion Settings UI:** Grouped blocks into logical, collapsible `<details>` components for cleaner navigation.
+- **Smart Toggle Engine:** The Blocks tab now fetches the real-time active state from NextDNS and dynamically binds it to the buttons so the UI accurately represents what is currently blocked.
+- **Universal Blocks Map:** Expanded the Blocks tab to manage Security Feeds (Phishing, CSAM, Typosquatting), Disguised Trackers, and Parental Control filters directly via PATCH and POST API requests.
+
+[... previous versions ...]
+
 ## [0.9.3] - 2026-03-13
 ### Security
 - **Robust Alarm Logic:** Refactored `TEMP_ALLOW` alarm name parsing to use `URLSearchParams`, preventing execution breakage if a domain contains special characters like `::`.

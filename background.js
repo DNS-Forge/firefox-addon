@@ -31,12 +31,8 @@ async function loadRegexRules() {
   if (enableLabs && regexBlocklist) {
     const rules = regexBlocklist.split('\n').filter(r => r.trim() !== '');
     if (rules.length > 0) {
-      try { 
-        combinedRegexRule = new RegExp(rules.map(r => `(?:${r.trim()})`).join('|'), 'i'); 
-      } catch (e) { 
-        console.error("Invalid Regex:", e); 
-        combinedRegexRule = null; 
-      }
+      try { combinedRegexRule = new RegExp(rules.map(r => `(?:${r.trim()})`).join('|'), 'i'); } 
+      catch (e) { combinedRegexRule = null; }
     } else combinedRegexRule = null;
   } else combinedRegexRule = null;
   updateWebRequestListeners();
@@ -64,10 +60,7 @@ function blockingListener(details) {
 }
 
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.url) { 
-    tabDomains[tabId] = new Set(); 
-    blockedTabRequests[tabId] = 0; 
-  }
+  if (changeInfo.url) { tabDomains[tabId] = new Set(); blockedTabRequests[tabId] = 0; }
   if (changeInfo.status === 'loading' && tab.url) {
     try {
       const url = new URL(tab.url);
@@ -119,8 +112,20 @@ async function detectActiveProfile() {
     } catch (e) {}
   }
   if (activeId) {
-    await browser.storage.local.set({ activeProfile: activeId });
-    return { id: activeId };
+    let profileName = activeId; 
+    const headers = await getHeaders();
+    if (headers["X-Api-Key"]) {
+      try {
+        const pRes = await fetch(`${API_BASE}/profiles`, { headers });
+        if (pRes.ok) {
+          const pData = await pRes.json();
+          const matchedProfile = pData.data.find(p => p.id === activeId);
+          if (matchedProfile) profileName = `${matchedProfile.name} (${activeId})`;
+        }
+      } catch(e) {}
+    }
+    await browser.storage.local.set({ activeProfile: activeId, activeProfileName: profileName });
+    return { id: activeId, name: profileName };
   }
   return null;
 }
@@ -148,6 +153,66 @@ const messageHandlers = {
   GET_PROFILES_LIST: async () => {
     const h = await getHeaders();
     try { return await (await fetch(`${API_BASE}/profiles`, { headers: h })).json(); } catch(e) { return null; }
+  },
+  CLEAR_LOGS: async (msg) => {
+    const h = await getHeaders();
+    const r = await fetch(`${API_BASE}/profiles/${msg.profileId}/logs`, { method: 'DELETE', headers: h });
+    return { success: r.ok };
+  },
+  DOWNLOAD_LOGS_CSV: async (msg) => {
+    const h = await getHeaders();
+    try { return await (await fetch(`${API_BASE}/profiles/${msg.profileId}/logs/download`, { headers: h })).text(); } catch(e) { return null; }
+  },
+  
+  // --- NEW: Smart Batch Fetcher for all Blocks UI Tabs ---
+  GET_ALL_SETTINGS: async (msg) => {
+    const h = await getHeaders();
+    try {
+      const [sec, priv, par, serv, cat, nat] = await Promise.all([
+        fetch(`${API_BASE}/profiles/${msg.profileId}/security`, { headers: h }).then(r=>r.json()),
+        fetch(`${API_BASE}/profiles/${msg.profileId}/privacy`, { headers: h }).then(r=>r.json()),
+        fetch(`${API_BASE}/profiles/${msg.profileId}/parentalcontrol`, { headers: h }).then(r=>r.json()),
+        fetch(`${API_BASE}/profiles/${msg.profileId}/parentalcontrol/services`, { headers: h }).then(r=>r.json()),
+        fetch(`${API_BASE}/profiles/${msg.profileId}/parentalcontrol/categories`, { headers: h }).then(r=>r.json()),
+        fetch(`${API_BASE}/profiles/${msg.profileId}/privacy/natives`, { headers: h }).then(r=>r.json())
+      ]);
+      return { 
+        success: true, 
+        data: { 
+          security: sec.data || {}, 
+          privacy: priv.data || {}, 
+          parentalcontrol: par.data || {},
+          services: serv.data || [],
+          categories: cat.data || [],
+          natives: nat.data || []
+        } 
+      };
+    } catch(e) { return { success: false, error: e.message }; }
+  },
+
+  // --- NEW: Smart Method Dispatcher (PATCH vs POST/DELETE) ---
+  TOGGLE_SETTING: async (msg) => {
+    const h = await getHeaders();
+    const { profileId, category, id, action, settingType } = msg;
+    const url = `${API_BASE}/profiles/${profileId}/${category}`;
+    
+    try {
+      let r;
+      if (settingType === 'boolean') {
+        // PATCH booleans directly to the root endpoint
+        const body = {};
+        body[id] = (action === "add");
+        r = await fetch(url, { method: 'PATCH', headers: h, body: JSON.stringify(body) });
+      } else {
+        // POST/DELETE lists to specific sub-endpoints
+        if (action === "add") {
+          r = await fetch(url, { method: 'POST', headers: h, body: JSON.stringify({ id: id, active: true }) });
+        } else {
+          r = await fetch(`${url}/${id}`, { method: 'DELETE', headers: h });
+        }
+      }
+      return { success: r.ok };
+    } catch(e) { return { success: false, error: e.message }; }
   }
 };
 

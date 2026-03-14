@@ -1,0 +1,8 @@
+{
+    "git.alwaysSignOff": true,
+    "git.enableCommitSigning": true,
+    "containers.contexts.showInStatusBar": true,
+    "containers.containerClient": "com.microsoft.visualstudio.containers.docker",
+    "containers.containerCommand": "docker container",
+    "containers.composeCommand": "docker compose"
+}
