@@ -20,7 +20,7 @@
     "jest-fetch-mock": "latest",
     "jest-webextension-mock": "latest",
     "jsdoc-to-markdown": "^9.1.3",
-    "web-ext": "^0.0.1"
+    "web-ext": "^10.6.0"
   },
   "jest": {
     "setupFilesAfterEnv": [
